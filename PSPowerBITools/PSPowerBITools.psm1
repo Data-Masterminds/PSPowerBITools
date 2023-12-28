@@ -47,7 +47,6 @@ function Import-ModuleFile {
 	$resolvedPath = $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath
 	if ($doDotSource) { . $resolvedPath }
 	else {
-		Write-Host $resolvedPath
 		$ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($resolvedPath))), $null, $null)
 	}
 }

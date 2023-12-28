@@ -40,7 +40,7 @@
 	# FormatsToProcess = @('xml\PSPowerBITools.Format.ps1xml')
 
 	# Functions to export from this module
-	FunctionsToExport = ''
+	FunctionsToExport = 'Get-PSBIAppUser'
 
 	# Cmdlets to export from this module
 	CmdletsToExport   = ''
