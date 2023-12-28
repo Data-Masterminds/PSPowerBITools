@@ -26,7 +26,8 @@
 	# Modules that must be imported into the global environment prior to importing
 	# this module
 	RequiredModules   = @(
-		@{ ModuleName = 'PSFramework'; ModuleVersion = '1.9.308' }
+		@{ ModuleName = 'PSFramework'; ModuleVersion = '1.9.308' },
+		@{ ModuleName = 'MicrosoftPowerBIMgmt'; ModuleVersion = '1.2.1111' }
 	)
 
 	# Assemblies that must be loaded prior to importing this module
