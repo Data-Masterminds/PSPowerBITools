@@ -9,13 +9,13 @@
 	GUID              = '0d547241-65be-4bd2-9822-1616c0fc3e5c'
 
 	# Author of this module
-	Author            = 'Sander'
+	Author            = 'Data Masterminds'
 
 	# Company or vendor of this module
-	CompanyName       = 'MyCompany'
+	CompanyName       = 'Data Masterminds'
 
 	# Copyright statement for this module
-	Copyright         = 'Copyright (c) 2023 Sander'
+	Copyright         = 'Copyright (c) 2024 Data Masterminds'
 
 	# Description of the functionality provided by this module
 	Description       = 'PowerShell module to manage PowerBI'
@@ -64,7 +64,8 @@
 		PSData = @{
 
 			ExternalModuleDependencies = @(
-				'PSFramework'
+				'PSFramework',
+				'MicrosoftPowerBIMgmt'
 			)
 
 			# Tags applied to this module. These help with module discovery in online galleries.
