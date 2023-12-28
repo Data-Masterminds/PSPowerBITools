@@ -1,0 +1,11 @@
+﻿TOPIC
+	about_PSPowerBITools
+	
+SHORT DESCRIPTION
+	Explains how to use the PSPowerBITools powershell module
+	
+LONG DESCRIPTION
+	<Insert Content here>
+
+KEYWORDS
+	PSPowerBITools

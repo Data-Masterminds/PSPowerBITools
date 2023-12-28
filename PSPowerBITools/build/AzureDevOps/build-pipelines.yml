@@ -1,0 +1,59 @@
+﻿trigger:
+  branches:
+    include:
+      - "*"
+    exclude:
+      - main
+      - development
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  TestResultDir: "$(Build.SourcesDirectory)\\..\\TestResults"
+  BuildVersion: "$(MajorVersion).$(MinorVersion).$(PatchVersion)"
+  BuildNuspecPath: "$(Build.SourcesDirectory)\\$(NuspecFile)"
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Default
+        steps:
+          - task: PowerShell@2
+            name: Prerequisites
+            displayName: Prerequisites
+            inputs:
+              targetType: "inline"
+              script: |
+                # Trust repo
+                Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+
+                # Install necessary modules
+                Install-Module PSFramework -Scope CurrentUser
+                Install-Module PSModuleDevelopment -Scope CurrentUser
+                Install-Module dbatools -Scope CurrentUser
+                Install-Module PSScriptAnalyzer -Scope CurrentUser
+
+                Write-Host $env:PSModulePath
+          - task: Cache@2
+            name: CachePowerShellModules
+            inputs:
+              key: "PowerShell modules"
+              path: 'C:\Users\VssAdministrator\Documents\WindowsPowerShell\Modules'
+          - task: PowerShell@2
+            name: UnitTests
+            displayName: Run Pester Unit Tests
+            inputs:
+              filePath: '$(Build.SourcesDirectory)\tests\pester.ps1 -IncludeCoverage'
+              arguments: "-OutputTestResult"
+              errorActionPreference: "continue"
+              ignoreLASTEXITCODE: true
+              failOnStderr: false
+          - task: PublishTestResults@2
+            name: TestResults
+            displayName: Publish Test Results
+            inputs:
+              testResultsFormat: "NUnit"
+              testResultsFiles: "**/TEST-*.xml"
+              searchFolder: "$(Common.TestResultsDirectory)"
+            condition: always()

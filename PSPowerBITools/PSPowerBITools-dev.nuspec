@@ -1,0 +1,15 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>PSPowerBITools-dev</id>
+    <version>1.0.0</version>
+    <authors></authors>
+    <description></description>
+    <releaseNotes>Version 1.0.0 was modified by sstad on </releaseNotes>
+    <copyright>Copyright 2024</copyright>
+    <tags>Module PSPowerBITools</tags>
+  </metadata>
+  <files>
+    <file src="**" exclude="**\*.nuspec;.git\**\*.*;build\**\*.*" />
+  </files>
+</package>

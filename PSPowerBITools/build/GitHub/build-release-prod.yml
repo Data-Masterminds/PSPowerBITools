@@ -1,0 +1,40 @@
+﻿name: Prod Publish the module to DMM Nuget
+
+on:
+  push:
+    branches:
+      - "main"
+
+  # allow for manual runs
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: pwsh
+
+env:
+  BUILD_NUSPEC_PATH: PSPowerBITools-dev.nuspec
+  TEST_RESULT_DIRECTORY: testresults
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v5.1
+        with:
+          modules-to-cache: PSFramework
+
+      - name: Publish Dev Build To Nuget
+        uses: Data-Masterminds/PublishPwshToNuget@v1.0.2
+        with:
+          module_name: PSPowerBITools
+          module_description: "PowerShell module for PSPowerBITools"
+          nuget_api: ${{ secrets.NUGET_API }}
+          nuspec_path: ${{ env.BUILD_NUSPEC_PATH }}
+          nuget_repo_url: https://nuget.datamasterminds.io/nuget/PSPowerBITools/
+          commit_email: support@datamasterminds.io
+          prerelease: false

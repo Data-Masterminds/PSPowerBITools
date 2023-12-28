@@ -1,0 +1,129 @@
+﻿trigger:
+  branches:
+    include:
+      - development
+    exclude:
+      - master
+
+pr:
+  branches:
+    include:
+      - "*"
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  TestResultDir: "$(Build.SourcesDirectory)\\..\\TestResults"
+  BuildVersion: "$(MajorVersion).$(MinorVersion).$(PatchVersion)"
+  BuildNuspecPath: "$(Build.SourcesDirectory)\\$(NuspecFile)"
+
+stages:
+  - stage: BuildAndRelease
+    jobs:
+      - job: Default
+        steps:
+          - task: PowerShell@2
+            name: Prerequisites
+            displayName: Prerequisites
+            inputs:
+              targetType: "inline"
+              script: |
+                # Trust repo
+                Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+
+                # Install necessary modules
+                Install-Module PSFramework -Scope CurrentUser
+                Install-Module PSModuleDevelopment -Scope CurrentUser
+                Install-Module dbatools -Scope CurrentUser
+                Install-Module PSScriptAnalyzer -Scope CurrentUser
+
+                Write-Host $env:PSModulePath
+          - task: Cache@2
+            name: CachePowerShellModules
+            inputs:
+              key: "PowerShell modules"
+              path: 'C:\Users\VssAdministrator\Documents\WindowsPowerShell\Modules'
+          - task: PowerShell@2
+            name: UnitTests
+            displayName: Run Pester Unit Tests
+            inputs:
+              filePath: '$(Build.SourcesDirectory)\tests\pester.ps1 -IncludeCoverage'
+              arguments: "-OutputTestResult"
+              errorActionPreference: "continue"
+              ignoreLASTEXITCODE: true
+              failOnStderr: false
+          - task: PublishTestResults@2
+            name: TestResults
+            displayName: Publish Test Results
+            inputs:
+              testResultsFormat: "NUnit"
+              testResultsFiles: "**/TEST-*.xml"
+              searchFolder: "$(Common.TestResultsDirectory)"
+            condition: always()
+          - task: PowerShell@2
+            name: Cleanup
+            displayName: Cleanup folders
+            inputs:
+              targetType: "inline"
+              script: |
+                Remove-Item -Path ".\.git" -Recurse -Force
+          - task: PowerShell@2
+            name: SetupVersion
+            displayName: Configure Nuspec file
+            inputs:
+              targetType: "inline"
+              script: |
+                $date = Get-Date -format "yyyy-MM-dd"
+
+                # Load the build Nuspec file
+                Write-Host "Loading Build Nuspec file: $($env:BuildNuspecPath)"
+                [xml]$xmlBuild = Get-Content -Path $env:BuildNuspecPath
+
+                # Update the new nuspec file
+                $xmlBuild.package.metadata.version = $env:BuildVersion
+                $xmlBuild.package.metadata.releaseNotes = "Version $env:BuildVersion was modified on $date"
+                $xmlBuild.Save($env:BuildNuspecPath)
+          - task: PowerShell@2
+            name: ConfigureManifest
+            displayName: Configure Manifest File
+            inputs:
+              targetType: "inline"
+              script: |
+                $date = Get-Date -format "yyyy-MM-dd"
+
+                # Update the manifest
+                Update-ModuleManifest -Path .\PSPowerBITools.psd1 -RootModule "PSPowerBITools-dev.psd1"
+                Update-ModuleManifest -Path .\PSPowerBITools.psd1 -ModuleVersion $env:BuildVersion
+                Update-ModuleManifest -Path .\PSPowerBITools.psd1 -Description "[DEVELOPMENT] Version of PowerShell module"
+
+                # Update files
+                (Get-Content -Path .\PSPowerBITools.psm1) -replace "PSPowerBITools.psd1", "PSPowerBITools-dev.psd1" | Set-Content -Path .\PSPowerBITools.psm1
+                (Get-Content -Path ".\internal\scripts\strings.ps1") -replace "PSPowerBITools", "PSPowerBITools-dev" | Set-Content -Path ".\internal\scripts\strings.ps1"
+
+                # Rename psd1 file
+                Rename-Item -Path .\PSPowerBITools.psd1 -NewName .\PSPowerBITools-dev.psd1
+                Rename-Item -Path .\PSPowerBITools.psm1 -NewName .\PSPowerBITools-dev.psm1
+
+                #Sleep Incase of update
+                Start-Sleep -Seconds 5
+
+                # Update the Markdown file to have the version update
+                Add-Content -Path .\README.md -Value "  **Version: $($env:BuildVersion)**"
+                Add-Content -Path .\README.md -Value "  by: $($env:USERNAME) on $($date)"
+          - task: NuGetCommand@2
+            name: PackNugetPackage
+            displayName: Pack Nuget Package
+            inputs:
+              command: "pack"
+              packagesToPack: "$(BuildNuspecPath)"
+              versioningScheme: "byEnvVar"
+              versionEnvVar: "BuildVersion"
+          - task: NuGetCommand@2
+            name: PublishNugetPackage
+            displayName: Publish Nuget Package
+            inputs:
+              command: "push"
+              packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg"
+              nuGetFeedType: "external"
+              publishFeedCredentials: "PSPowerBITools"
