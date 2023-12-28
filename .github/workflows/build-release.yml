@@ -1,9 +1,9 @@
-name: Prerelease Publish
+name: Production Publish
 
 on:
   push:
     branches:
-      - "development"
+      - "main"
 
   # allow for manual runs
   workflow_dispatch:
