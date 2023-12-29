@@ -1,4 +1,4 @@
-﻿function Login-PSBI {
+﻿function Connect-PSBI {
 
     <#
     .SYNOPSIS
@@ -9,8 +9,14 @@
 
         To re-login with PowerBI set the configuration to reload the login:
             Set-PSFConfig -FullName PSPowerBITools.Login.Reload -Value $true
-            Login-PSBI
+            Connect-PSBI
             Set-PSFConfig -FullName PSPowerBITools.Login.Reload -Value $false
+
+    .PARAMETER Credential
+        The credential to login with
+
+    .PARAMETER Tenant
+        The tenant id to login to
 
     .PARAMETER EnableException
         By default, when something goes wrong we try to catch it, interpret it and give you a friendly warning message.
@@ -28,32 +34,48 @@
         Website: http://datamasterminds.io
 
     .EXAMPLE
+        Connect-PSBI
+
+        Login to Power BI
+
+    .EXAMPLE
+        Connect-PSBI -AsServiceAccount
+
+        Login to Power BI with a service account
 
     #>
 
     [CmdletBinding()]
 
     param (
-        [switch]$AsServiceAccount,
+        [pscredential]$Credential,
+        [string]$Tenant,
         [switch]$EnableException
     )
 
-    # Check if the user wants to reload the login
-    if ((Get-PSFConfigValue -FullName PSPowerBITools.Login.Reload) -eq $true) {
-        Remove-Variable -Name PowerBILogin -Scope Global -ErrorAction Ignore
+    begin {
+        $loginParams = @{}
 
-        # Load the login of Power BI
-        if ($ServiceAccount) {
-            $global:PowerBILogin = Login-PowerBI -AsServiceAccount
+        if ($Credential) {
+            $loginParams.Credential = $Credential
         }
-        else {
-            $global:PowerBILogin = Login-PowerBI
+
+        if ($Tenant) {
+            $loginParams.Tenant = $Tenant
         }
     }
-    else {
+
+    process {
+        # Check if the user wants to reload the login
+        if ((Get-PSFConfigValue -FullName PSPowerBITools.Login.Reload) -eq $true) {
+            Remove-Variable -Name PowerBILogin -ErrorAction Ignore
+
+            Disconnect-PowerBIServiceAccount
+        }
+
         if ($global:PowerBILogin) {
             $messageParams = @{
-                Message         = "The login of Power BI is already loaded. If you want to reload the login, set the configuration 'PSPowerBITools.Login.Reload' to true."
+                Message         = "The login of Power BI is already loaded. If you want to re-login, set the configuration 'PSPowerBITools.Login.Reload' to true. See help."
                 Level           = 'Warning'
                 EnableException = [bool]$EnableException
             }
@@ -61,12 +83,7 @@
         }
         else {
             # Load the login of Power BI
-            if ($ServiceAccount) {
-                $global:PowerBILogin = Login-PowerBI -AsServiceAccount
-            }
-            else {
-                $global:PowerBILogin = Login-PowerBI
-            }
+            $global:PowerBILogin = Connect-PowerBIServiceAccount @loginParams
         }
     }
 }

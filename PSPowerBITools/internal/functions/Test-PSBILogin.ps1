@@ -30,9 +30,10 @@
     #>
 
     [CmdletBinding()]
+    [OutputType([bool])]
 
     param (
-        [switch]$EnableException
+
     )
 
     if ($global:PowerBILogin) {

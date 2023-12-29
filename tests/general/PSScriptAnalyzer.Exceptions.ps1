@@ -1,5 +1,6 @@
 ﻿# List of excludes
 $global:ScriptAnalyzerExcludes = @(
+
 )
 
 <#
@@ -11,5 +12,6 @@ $global:ScriptAnalyzerExcludes = @(
 #>
 
 $global:MayContainScriptAnalyzerError = @{
-
+	"Test-PSBILogin" = @("PSAvoidGlobalVars")
+	"Connect-PSBI"   = @("PSAvoidGlobalVars")
 }

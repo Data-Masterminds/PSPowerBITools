@@ -50,6 +50,7 @@
     #>
 
     [CmdletBinding()]
+    [OutputType([System.Object[]])]
 
     param (
         [string[]]$AppName,
@@ -58,9 +59,13 @@
     )
 
     begin {
+        if (-not (Test-PSBILogin)) {
+            Stop-PSFFunction -Message "You are not logged in to Power BI. Please login first using Connect-PSBI." -EnableException:$EnableException -Continue
+        }
+
         # Declare the array
-        [array]$appUsers = @()
-        [array]$apps = @()
+        $appUsers = @()
+        $apps = @()
 
         try {
             # Get the apps
@@ -122,7 +127,15 @@
     end {
         if (Test-PSFFunctionInterrupt) { return }
 
+        if ($appUsers.Count -eq 0) {
+            Write-PSFMessage -Message "No app users found in Power BI." -Level Warning
+        }
+        else {
+            Write-PSFMessage -Message "Found $($appUsers.Count) app users in Power BI." -Level Verbose
+        }
+
         # Return the app users
         return $appUsers
+
     }
 }
