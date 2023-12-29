@@ -29,27 +29,55 @@
         Website: http://datamasterminds.io
 
     .EXAMPLE
+        Get-PSBIAppUser -AppName 'My App'
 
+        Get the users of the app 'My App'
+
+    .EXAMPLE
+        Get-PSBIAppUser -AppName 'My App', 'My Second App'
+
+        Get the users of the apps 'My App' and 'My Second App'
+
+    .EXAMPLE
+        Get-PSBIAppUser -AppId '12345678-1234-1234-1234-123456789012'
+
+        Get the users of the app with the id '12345678-1234-1234-1234-123456789012'
+
+    .EXAMPLE
+        Get-PSBIAppUser -AppId '12345678-1234-1234-1234-123456789012', '12345678-1234-1234-1234-123456789012'
+
+        Get the users of the apps with multiple ids
     #>
 
     [CmdletBinding()]
 
     param (
-        [string]$AppName,
-        [string]$AppId,
+        [string[]]$AppName,
+        [string[]]$AppId,
         [switch]$EnableException
     )
 
     begin {
+        # Declare the array
+        [array]$appUsers = @()
+        [array]$apps = @()
+
         try {
             # Get the apps
             if ($AppName) {
-                [array]$apps = Invoke-PowerBIRestMethod -Url 'Apps' -Method Get | ConvertFrom-Json | Where-Object { $_.name -eq $AppName }
+                # Loop through the app names
+                foreach ($item in $AppName) {
+                    [array]$apps += Invoke-PowerBIRestMethod -Url 'Apps' -Method Get | ConvertFrom-Json | Where-Object { $_.name -eq $item }
+                }
             }
             elseif ($AppId) {
-                [array]$apps = Invoke-PowerBIRestMethod -Url "Apps/$($appId)" -Method Get | ConvertFrom-Json
+                # Loop through the app ids
+                foreach ($item in $AppId) {
+                    [array]$apps += Invoke-PowerBIRestMethod -Url "Apps/$($item)" -Method Get | ConvertFrom-Json
+                }
             }
             else {
+                # Get all the apps
                 [array]$apps = Invoke-PowerBIRestMethod -Url 'Apps' -Method Get | ConvertFrom-Json
             }
         }
@@ -63,8 +91,6 @@
         if (Test-PSFFunctionInterrupt) { return }
 
         if ($apps.Count -ge 1) {
-            $appUsers = @()
-
             foreach ($app in $apps) {
                 # Get the workspace name
                 $workspace = Invoke-PowerBIRestMethod -Url "groups/$($app.workspaceId)" -Method Get | ConvertFrom-Json
