@@ -1,4 +1,4 @@
-﻿function Get-PSBIUser {
+﻿function Get-PSBIWorkspaceUser {
 
     <#
     .SYNOPSIS
@@ -10,7 +10,7 @@
     .PARAMETER WorkspaceId
         The id of the workspace
 
-    .PARAMETER WorkspaceName
+    .PARAMETER WorkSpaceName
         The name of the workspace
 
     .PARAMETER Detailed
@@ -32,17 +32,17 @@
         Website: http://datamasterminds.io
 
     .EXAMPLE
-        Get-PSBIUser -WorkspaceId '12345678-1234-1234-1234-123456789012'
+        Get-PSBIWorkspaceUser -WorkspaceId '12345678-1234-1234-1234-123456789012'
 
         Get the users of the workspace with the id '12345678-1234-1234-1234-123456789012'
 
     .EXAMPLE
-        Get-PSBIUser -WorkspaceName 'My Workspace'
+        Get-PSBIWorkspaceUser -WorkspaceName 'My Workspace'
 
         Get the users of the workspace with the name 'My Workspace'
 
     .EXAMPLE
-        Get-PSBIUser -Detailed
+        Get-PSBIWorkspaceUser -Detailed
 
         Get the users of all the workspaces in the organization with detailed information
 
@@ -83,7 +83,12 @@
             $wsUsers = @()
 
             # Get the users of the workspace
-            $wsUsers += (Invoke-PowerBIRestMethod -Url "Groups/$($ws.Id)/users" -Method Get -ErrorAction SilentlyContinue | ConvertFrom-Json).Value
+            try {
+                $wsUsers += (Invoke-PowerBIRestMethod -Url "Groups/$($ws.Id)/users" -Method Get -ErrorAction SilentlyContinue | ConvertFrom-Json).Value
+            }
+            catch {
+                Stop-PSFFunction -Message "Something went wrong retrieving the users of the workspace with the id '$($ws.Id)'`n$($_.Exception.Message)" -EnableException:$EnableException
+            }
 
             # Add the users to the workspace object
             if ($Detailed) {

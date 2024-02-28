@@ -87,7 +87,13 @@
             $StartDateString = $StartDate.ToString("yyyy-MM-ddT00:00:00Z")
             $EndDateString = $EndDate.ToString("yyyy-MM-ddT23:59:59Z")
 
-            [array]$activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
+            try {
+                [array]$activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
+            }
+            catch {
+                Stop-PSFFunction -Message "Something went wrong retrieving the activity events.`n$($_.Exception.Message)" -EnableException:$EnableException
+            }
+
         }
         else {
             $date = $StartDate
@@ -95,7 +101,14 @@
                 $StartDateString = $date.ToString("yyyy-MM-ddT00:00:00Z")
                 $EndDateString = $date.ToString("yyyy-MM-ddT23:59:59Z")
 
-                $activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
+                try {
+                    $activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
+                }
+                catch {
+                    Stop-PSFFunction -Message $_.Exception.Message -EnableException:$EnableException
+                }
+
+
 
                 $date = $date.AddDays(1)
             }

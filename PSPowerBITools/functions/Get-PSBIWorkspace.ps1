@@ -57,34 +57,35 @@
 
     param (
         [Parameter()]
-        [string]$WorkspaceId,
+        [string[]]$WorkspaceId,
         [string[]]$WorkspaceName,
         [switch]$Detailed,
         [switch]$EnableException
     )
 
     begin {
-        if (-not $Workspace) {
-            [array]$Workspace = Get-PowerBIWorkspace -Scope Organization
+        try {
+            if (-not $Workspace) {
+                [array]$Workspace = Get-PowerBIWorkspace -Scope Organization
+            }
+            elseif ($WorkspaceId) {
+                [array]$Workspace = Get-PowerBIWorkspace -Id $WorkspaceId
+            }
+            elseif ($WorkspaceName) {
+                [array]$Workspace = Get-PowerBIWorkspace -Name $WorkspaceName
+            }
         }
-        elseif ($WorkspaceId) {
-            [array]$Workspace = Get-PowerBIWorkspace -Id $WorkspaceId
+        catch {
+            Stop-PSFFunction -Message "Something went wrong retrieving the workspace(s)`n$($_.Exception.Message)" -EnableException:$EnableException
         }
-        elseif ($WorkspaceName) {
-            [array]$Workspace = Get-PowerBIWorkspace -Name $WorkspaceName
-        }
-
-        $capacity = Get-PowerBICapacity -Scope Organization
     }
 
     process {
+        # Create an array to store the workspaces
         $workspaces = @()
 
+        # Loop through the workspaces and get the detailed information
         foreach ($ws in $Workspace) {
-            if ($null -ne $ws.CapacityId ) {
-                $capacityName = ($capacity | Where-Object { $_.Id -eq $ws.CapacityId }).Name
-            }
-
             if ($Detailed) {
                 $wsObject = [PSCustomObject]@{
                     Id                    = $ws.Id
@@ -118,8 +119,7 @@
                 }
             }
 
-
-
+            # Add the workspace to the array
             $workspaces += $wsObject
         }
     }
