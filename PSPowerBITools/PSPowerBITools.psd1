@@ -41,7 +41,10 @@
 
 	# Functions to export from this module
 	FunctionsToExport = 'Connect-PSBI',
-	'Get-PSBIAppUser'
+	'Get-PSBIActivityEvent',
+	'Get-PSBIAppUser',
+	'Get-PSBIWorkspace',
+	'Get-PSBIWorkspaceUser'
 
 	# Cmdlets to export from this module
 	CmdletsToExport   = ''
