@@ -91,7 +91,8 @@
                     Id                    = $ws.Id
                     Name                  = $ws.Name
                     CapacityId            = $ws.CapacityId
-                    Dashboards            = $ws.Dashboards.Count
+                    Type                  = $ws.Type
+                    Dashboards            = $ws.Dashboards
                     Dataflows             = $ws.Dataflows
                     Datasets              = $ws.Datasets
                     Reports               = $ws.Reports
@@ -107,6 +108,7 @@
                     Id                    = $ws.Id
                     Name                  = $ws.Name
                     CapacityId            = $ws.CapacityId
+                    Type                  = $ws.Type
                     Dashboards            = $ws.Dashboards.Count
                     Dataflows             = $ws.Dataflows.Count
                     Datasets              = $ws.Datasets.Count
