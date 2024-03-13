@@ -13,6 +13,9 @@
     .PARAMETER WorkspaceName
         The name of the workspace
 
+    .PARAMETER IsOrphaned
+        If this switch is enabled, only the orphaned workspaces will be returned.
+
     .PARAMETER Detailed
         If this switch is enabled, the detailed information of the workspaces will be returned.
 
@@ -51,6 +54,11 @@
 
         Get the workspaces in the organization with detailed information
 
+    .EXAMPLE
+        Get-PSBIWorkspace -IsOrphaned
+
+        Get the orphaned workspaces in the organization
+
     #>
 
     [CmdletBinding()]
@@ -59,6 +67,7 @@
         [Parameter()]
         [string[]]$WorkspaceId,
         [string[]]$WorkspaceName,
+        [switch]$IsOrphaned,
         [switch]$Detailed,
         [switch]$EnableException
     )
@@ -66,13 +75,13 @@
     begin {
         try {
             if (-not $Workspace) {
-                [array]$Workspace = Get-PowerBIWorkspace -Scope Organization
+                [array]$Workspace = Get-PowerBIWorkspace -Scope Organization -Orphaned:$IsOrphaned
             }
             elseif ($WorkspaceId) {
-                [array]$Workspace = Get-PowerBIWorkspace -Id $WorkspaceId
+                [array]$Workspace = Get-PowerBIWorkspace -Id $WorkspaceId -Orphaned:$IsOrphaned
             }
             elseif ($WorkspaceName) {
-                [array]$Workspace = Get-PowerBIWorkspace -Name $WorkspaceName
+                [array]$Workspace = Get-PowerBIWorkspace -Name $WorkspaceName -Orphaned:$IsOrphaned
             }
         }
         catch {
@@ -114,7 +123,7 @@
                     Datasets              = $ws.Datasets.Count
                     Reports               = $ws.Reports.Count
                     Workbooks             = $ws.Workbooks.Count
-                    Users                 = $ws.Users.Count
+                    Users                 = $ws.Users.Identifier.Count
                     IsReadOnly            = $ws.IsReadOnly
                     IsOnDedicatedCapacity = $ws.IsOnDedicatedCapacity
                     IsOrphaned            = $ws.IsOrphaned
