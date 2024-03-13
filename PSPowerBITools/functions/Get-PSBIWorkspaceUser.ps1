@@ -82,27 +82,27 @@
             }
             $wsUsers = @()
 
-            # Get the users of the workspace
-            try {
-                $wsUsers += (Invoke-PowerBIRestMethod -Url "Groups/$($ws.Id)/users" -Method Get -ErrorAction SilentlyContinue | ConvertFrom-Json).Value
-            }
-            catch {
-                Stop-PSFFunction -Message "Something went wrong retrieving the users of the workspace with the id '$($ws.Id)'`n$($_.Exception.Message)" -EnableException:$EnableException
-            }
+            # # Get the users of the workspace
+            # try {
+            #     $wsUsers += (Invoke-PowerBIRestMethod -Url "Groups/$($ws.Id)/users" -Method Get -ErrorAction SilentlyContinue | ConvertFrom-Json).Value
+            # }
+            # catch {
+            #     Stop-PSFFunction -Message "Something went wrong retrieving the users of the workspace with the id '$($ws.Id)'`n$($_.Exception.Message)" -EnableException:$EnableException
+            # }
 
             # Add the users to the workspace object
             if ($Detailed) {
                 $wsObject = [PSCustomObject]@{
                     Id    = $ws.Id
                     Name  = $ws.Name
-                    Users = $wsUsers
+                    Users = $ws.Users
                 }
             }
             else {
                 $wsObject = [PSCustomObject]@{
                     Id    = $ws.Id
                     Name  = $ws.Name
-                    Users = $wsUsers | Select-Object -ExpandProperty identifier
+                    Users = $ws.Users | Select-Object -ExpandProperty identifier
                 }
             }
 
