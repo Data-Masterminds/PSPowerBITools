@@ -95,14 +95,14 @@
                 $wsObject = [PSCustomObject]@{
                     Id    = $ws.Id
                     Name  = $ws.Name
-                    Users = $wsUsers
+                    Users = $ws.Users
                 }
             }
             else {
                 $wsObject = [PSCustomObject]@{
                     Id    = $ws.Id
                     Name  = $ws.Name
-                    Users = $wsUsers | Select-Object -ExpandProperty identifier
+                    Users = $ws.Users | Select-Object -ExpandProperty identifier
                 }
             }
 
