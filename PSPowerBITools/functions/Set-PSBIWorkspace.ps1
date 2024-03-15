@@ -16,14 +16,11 @@ function Set-PSBIWorkspace {
     .PARAMETER Name
         The new name of the workspace
 
-    .PARAMETER Description
-        The new description of the workspace
-
     .PARAMETER CapacityId
         The id of the capacity the workspace should be on
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
 
     param(
         [string[]]$WorkspaceId,
@@ -75,12 +72,14 @@ function Set-PSBIWorkspace {
                         name = $Name
                     }
 
-                    # Change the workspace
-                    try {
-                        $response = Invoke-PowerBIRestMethod -Url $url -Method Patch -Body $($body | ConvertTo-Json)
-                    }
-                    catch {
-                        Stop-PSFFunction -Message "Something went wrong changing the name of the workspace`n$($_.Exception.Message)"
+                    if ($PSCmdlet.ShouldProcess("$($workspace.Id)", "Change name from '$($workspace.Name)' to '$Name'")) {
+                        # Change the workspace
+                        try {
+                            Invoke-PowerBIRestMethod -Url $url -Method Patch -Body $($body | ConvertTo-Json)
+                        }
+                        catch {
+                            Stop-PSFFunction -Message "Something went wrong changing the name of the workspace`n$($_.Exception.Message)"
+                        }
                     }
                 }
 
@@ -95,11 +94,13 @@ function Set-PSBIWorkspace {
                     }
 
                     # Change the workspace
-                    try {
-                        $response = Invoke-PowerBIRestMethod -Url $url -Method Post -Body $($body | ConvertTo-Json)
-                    }
-                    catch {
-                        Stop-PSFFunction -Message "Something went wrong changing the capacity of the workspace`n$($_.Exception.Message)"
+                    if ($PSCmdlet.ShouldProcess("$($workspace.Id)", "Change capacity to '$CapacityId'")) {
+                        try {
+                            Invoke-PowerBIRestMethod -Url $url -Method Post -Body $($body | ConvertTo-Json)
+                        }
+                        catch {
+                            Stop-PSFFunction -Message "Something went wrong changing the capacity of the workspace`n$($_.Exception.Message)"
+                        }
                     }
                 }
 
