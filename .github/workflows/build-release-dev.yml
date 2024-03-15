@@ -1,4 +1,4 @@
-name: Prerelease Publish
+name: Dev Build and Test
 
 on:
   #push:
