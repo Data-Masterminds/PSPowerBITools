@@ -3,7 +3,7 @@
 	RootModule        = 'PSPowerBITools.psm1'
 
 	# Version number of this module.
-	ModuleVersion     = '1.0.0'
+	ModuleVersion     = '1.0.1'
 
 	# ID used to uniquely identify this module
 	GUID              = '0d547241-65be-4bd2-9822-1616c0fc3e5c'
@@ -88,7 +88,7 @@
 			# ReleaseNotes = ''
 
 			# Prerelease string of this module
-			Prerelease                 = 'preview00'
+			#Prerelease                 = 'preview00'
 
 		} # End of PSData hashtable
 
