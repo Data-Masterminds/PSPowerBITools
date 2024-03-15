@@ -28,7 +28,7 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v5.1
         with:
-          modules-to-cache: PSFramework
+          modules-to-cache: PSFramework, MicrosoftPowerBIMgmt
 
       - name: Run unit tests
         id: unit-tests
@@ -65,7 +65,7 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v5.1
         with:
-          modules-to-cache: PSFramework
+          modules-to-cache: PSFramework, MicrosoftPowerBIMgmt
 
       - name: Update version
         run: |
@@ -92,10 +92,10 @@ jobs:
         run: |
           Remove-Item -Path $env:GITHUB_WORKSPACE\*.nupkg -Force -ErrorAction SilentlyContinue
           Remove-Item -Path $env:GITHUB_WORKSPACE\*.nuspec -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\xml -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\bin -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\xml -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\bin -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
 
-          Publish-Module -path ./ -NuGetApiKey ${{ secrets.API_TOKEN }} -Verbose
+          Publish-Module -path $env:GITHUB_WORKSPACE\PSPowerBITools -NuGetApiKey ${{ secrets.API_TOKEN }} -Verbose
 
 
       - name: Add & Commit latest changes
