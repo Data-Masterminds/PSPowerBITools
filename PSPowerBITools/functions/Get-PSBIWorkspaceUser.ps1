@@ -80,7 +80,6 @@
                 Name  = $null
                 Users = $null
             }
-            $wsUsers = @()
 
             # # Get the users of the workspace
             # try {

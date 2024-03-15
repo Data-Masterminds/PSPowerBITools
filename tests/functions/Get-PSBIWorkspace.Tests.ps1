@@ -9,7 +9,7 @@ Describe "$CommandName Unit Tests" -Tag 'UnitTests' {
         It "Should only contain our specific parameters" {
             [string[]]$params = (Get-Command $CommandName).Parameters.Keys | Where-Object { $_ -notin ('whatif', 'confirm') }
 
-            [string[]]$knownParameters = 'WorkspaceId', 'WorkspaceName', 'Detailed', 'EnableException'
+            [string[]]$knownParameters = 'WorkspaceId', 'WorkspaceName', 'Detailed', 'IsOrphaned', 'EnableException'
             $knownParameters += [System.Management.Automation.PSCmdlet]::CommonParameters
 
             (@(Compare-Object -ReferenceObject ($knownParameters | Where-Object { $_ }) -DifferenceObject $params).Count ) | Should -Be 0
@@ -19,6 +19,7 @@ Describe "$CommandName Unit Tests" -Tag 'UnitTests' {
             Get-Command $CommandName | Should -HaveParameter WorkspaceId -Type string[]
             Get-Command $CommandName | Should -HaveParameter WorkspaceName -Type string[]
             Get-Command $CommandName | Should -HaveParameter Detailed -Type switch
+            Get-Command $CommandName | Should -HaveParameter IsOrphaned -Type switch
             Get-Command $CommandName | Should -HaveParameter EnableException -Type switch
         }
     }
