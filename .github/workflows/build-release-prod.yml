@@ -95,7 +95,7 @@ jobs:
           Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\xml -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
           Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\bin -Force -Recurse -Confirm:$false -ErrorAction SilentlyContinue
 
-          Publish-Module -path ./ -NuGetApiKey ${{ secrets.API_TOKEN }} -Verbose
+          Publish-Module -path $env:GITHUB_WORKSPACE\PSPowerBITools -NuGetApiKey ${{ secrets.API_TOKEN }} -Verbose
 
 
       - name: Add & Commit latest changes
