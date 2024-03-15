@@ -1,9 +1,9 @@
 name: Dev Build and Test
 
 on:
-  #push:
-  #  branches:
-  #    - "development"
+  push:
+    branches:
+      - "development"
 
   # allow for manual runs
   workflow_dispatch:
