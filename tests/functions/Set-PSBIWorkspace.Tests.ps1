@@ -2,7 +2,7 @@
 
 Describe "$CommandName Unit Tests" -Tag 'UnitTests' {
     BeforeAll {
-        $CommandName = 'Get-PSBIWorkspace'
+        $CommandName = 'Set-PSBIWorkspace'
     }
 
     Context "Validate known parameters" {
