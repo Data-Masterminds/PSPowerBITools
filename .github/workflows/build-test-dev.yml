@@ -28,7 +28,7 @@ jobs:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v5.1
         with:
-          modules-to-cache: PSFramework
+          modules-to-cache: PSFramework, MicrosoftPowerBIMgmt
 
       - name: Run unit tests
         id: unit-tests
