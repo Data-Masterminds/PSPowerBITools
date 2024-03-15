@@ -1,0 +1,54 @@
+Automate workspace management.
+Control user access.
+Manage data sets, connections, and refresh schedules.
+Schedule routine tasks for data maintenance and reporting.
+
+Healthcheck in a wrapper when we collect them all.
+
+
+Inventory check: Workspaces, dataset, reports and users, orphaned workspaces.
+      Get-PowerBIWorkspaces, Get-PowerBIDataset, Get-PowerBIDataSources, Get-PowerBIReport, Get-WorkspaceUsers, Get-PowerBIWorkspace -Scope Organization -Orphaned -All
+      Add one for orphaned datasets.
+      Would Like a command go Get apps.. exist? Can't find it. And users/rolse with access to app. REST API
+
+Are there any unused reports?
+      Get-PowerBIActivityEvent (ActivityType viewreport)
+Should we delete those?
+      Remove-PowerBIReport
+
+Create new Workspaces (test/dev/prod)
+      New-PowerBIWorkspace
+      Move
+
+Control User access
+Remove specific user access to workspaces.
+      Remove-PowerBIWorkspaceUser
+Create roles (dependent on info in Entra)
+      New-PBIGroup
+Place roles in workspaces
+      Set-PBIGroup
+
+Extract Userlist to make it updated every night. To a CSV, SQLDB, Excel or any intermediate source.
+In SQLDB? In Dataset? Fabric even easier, one table that could be used for multiple datasets.
+      Install-Module Az.Resources
+      Connect-AzAccount
+                  [-Environment ]
+                  [-Tenant ]
+                  [-AccountId ]
+                  [-Subscription ]
+                  [-AuthScope ]
+                  [-ContextName ]
+                  [-SkipContextPopulation]
+                  [-MaxContextPopulation ]
+                  [-UseDeviceAuthentication]
+                  [-Force]
+                  [-Scope ]
+                  [-DefaultProfile ]
+                  [-WhatIf]
+                  [-Confirm]
+                  []
+      Get-AzADUser
+      Get-AzADUser | ConvertTo-CSV | Out-File C:\ADUsers.csv
+Scheduled process to run the Powershell script every night.
+
+Create Backups of report and dataset to Git?

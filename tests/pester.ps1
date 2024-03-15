@@ -14,7 +14,7 @@ Write-PSFMessage -Level Important -Message "Starting Tests"
 
 Write-PSFMessage -Level Important -Message "Importing Module"
 
-#$global:testroot = $PSScriptRoot
+$global:testroot = $PSScriptRoot
 #$global:__pester_data = @{ }
 #$global:moduleRoot = Join-PSFPath -Path $PSScriptRoot "\..\" -Normalize
 
@@ -23,13 +23,13 @@ if ($null -eq $TestResultDirectory -or $TestResultDirectory -eq '') {
 }
 
 Remove-Module PSPowerBITools -ErrorAction Ignore
+Remove-Module PSFramework -ErrorAction Ignore
 
 # If ever needed you can preimport the modules here
-Import-Module PSframework
-
+Import-Module PSFramework
 
 Import-Module (Join-PSFPath -Path $PSScriptRoot "\..\PSPowerBITools\PSPowerBITools.psd1" -Normalize) -Force -ErrorAction SilentlyContinue
-Import-Module (Join-PSFPath -Path $PSScriptRoot "\..\PSPowerBITools\PSPowerBITools.psm1" -Normalize) -Force
+Import-Module (Join-PSFPath -Path $PSScriptRoot "\..\PSPowerBITools\PSPowerBITools.psm1" -Normalize) -Force -ErrorAction SilentlyContinue
 
 # Need to import explicitly so we can use the configuration class
 Import-Module Pester

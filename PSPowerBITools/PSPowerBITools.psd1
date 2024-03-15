@@ -3,19 +3,19 @@
 	RootModule        = 'PSPowerBITools.psm1'
 
 	# Version number of this module.
-	ModuleVersion     = '1.0.0'
+	ModuleVersion     = '1.0.1'
 
 	# ID used to uniquely identify this module
 	GUID              = '0d547241-65be-4bd2-9822-1616c0fc3e5c'
 
 	# Author of this module
-	Author            = 'Sander'
+	Author            = 'Data Masterminds'
 
 	# Company or vendor of this module
-	CompanyName       = 'MyCompany'
+	CompanyName       = 'Data Masterminds'
 
 	# Copyright statement for this module
-	Copyright         = 'Copyright (c) 2023 Sander'
+	Copyright         = 'Copyright (c) 2024 Data Masterminds'
 
 	# Description of the functionality provided by this module
 	Description       = 'PowerShell module to manage PowerBI'
@@ -26,7 +26,8 @@
 	# Modules that must be imported into the global environment prior to importing
 	# this module
 	RequiredModules   = @(
-		@{ ModuleName = 'PSFramework'; ModuleVersion = '1.9.308' }
+		@{ ModuleName = 'PSFramework'; ModuleVersion = '1.9.308' },
+		@{ ModuleName = 'MicrosoftPowerBIMgmt'; ModuleVersion = '1.2.1111' }
 	)
 
 	# Assemblies that must be loaded prior to importing this module
@@ -39,7 +40,11 @@
 	# FormatsToProcess = @('xml\PSPowerBITools.Format.ps1xml')
 
 	# Functions to export from this module
-	FunctionsToExport = ''
+	FunctionsToExport = 'Connect-PSBI',
+	'Get-PSBIActivityEvent',
+	'Get-PSBIAppUser',
+	'Get-PSBIWorkspace',
+	'Get-PSBIWorkspaceUser'
 
 	# Cmdlets to export from this module
 	CmdletsToExport   = ''
@@ -63,7 +68,8 @@
 		PSData = @{
 
 			ExternalModuleDependencies = @(
-				'PSFramework'
+				'PSFramework',
+				'MicrosoftPowerBIMgmt'
 			)
 
 			# Tags applied to this module. These help with module discovery in online galleries.
@@ -82,7 +88,7 @@
 			# ReleaseNotes = ''
 
 			# Prerelease string of this module
-			Prerelease                 = 'preview00'
+			#Prerelease                 = 'preview00'
 
 		} # End of PSData hashtable
 
