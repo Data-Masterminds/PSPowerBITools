@@ -47,6 +47,10 @@ function Set-PSBIWorkspace {
         if ($WorkspaceName) {
             $workspaces += Get-PSBIWorkspace -WorkspaceName $WorkspaceName -Verbose:$false
         }
+
+        if ($Name -and $workspaces.Count -gt 1) {
+            Stop-PSFFunction -Message "You can only change the name of one workspace at a time"
+        }
     }
 
     process {
