@@ -92,8 +92,8 @@ jobs:
         run: |
           Remove-Item -Path $env:GITHUB_WORKSPACE\*.nupkg -Force -ErrorAction SilentlyContinue
           Remove-Item -Path $env:GITHUB_WORKSPACE\*.nuspec -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\xml -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\bin -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\xml -Force -Confirm:$false -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\bin -Force -Confirm:$false -ErrorAction SilentlyContinue
 
           Publish-Module -path ./ -NuGetApiKey ${{ secrets.API_TOKEN }} -Verbose
 
