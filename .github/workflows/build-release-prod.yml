@@ -17,7 +17,7 @@ env:
   TEST_RESULT_DIRECTORY: testresults
 
 jobs:
-  build-and-publish:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,4 +52,57 @@ jobs:
         if: always()
         with:
           files: "testresults/TEST-*.xml"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.REPO_TOKEN }}
+
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v5.1
+        with:
+          modules-to-cache: PSFramework
+
+      - name: Update version
+        run: |
+          $ErrorActionPreference = "Stop"
+          # Get manifest
+          $psd1Path = (Join-Path $env:GITHUB_WORKSPACE PSPowerBITools "PSPowerBITools.psd1")
+          $psd1 = Get-ChildItem -Path $psd1Path
+
+          # Update version. Update-ModuleManifest reformats, use replace instead.
+          $manifest = Import-PowerShellDataFile $psd1.FullName
+          [version]$version = $manifest.ModuleVersion
+
+          # prod release
+          # if it's not a preview, increment the build number
+          [version]$newVersion = "{0}.{1}.{2}" -f $version.Major, $version.Minor, ($version.Build + 1)
+
+          # Update the version in the manifest
+          ((Get-Content $psd1.FullName) -replace $version, $newVersion) | Out-File $psd1.FullName -Encoding UTF8
+          $nugetVersion = $newVersion
+
+          "version=$nugetVersion" >> $env:GITHUB_ENV
+
+      - name: Publish to PowerShell Gallery
+        run: |
+          Remove-Item -Path $env:GITHUB_WORKSPACE\*.nupkg -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\*.nuspec -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\xml -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path $env:GITHUB_WORKSPACE\PSPowerBITools\bin -Force -ErrorAction SilentlyContinue
+
+          Publish-Module -path ./ -NuGetApiKey ${{ secrets.API_TOKEN }} -Verbose
+
+
+      - name: Add & Commit latest changes
+        uses: EndBug/add-and-commit@v9.1.3
+        with:
+          author_name: Github Action Magic
+          author_email: support@datamasterminds.io
+          message: 'Module version updated [no ci]'
+          add: '*.psd1'
 
