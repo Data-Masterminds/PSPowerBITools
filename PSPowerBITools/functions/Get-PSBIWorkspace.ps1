@@ -73,28 +73,38 @@
     )
 
     begin {
+        $workspaces = @()
         try {
-            if (-not $Workspace) {
-                [array]$Workspace = Get-PowerBIWorkspace -Scope Organization -Orphaned:$IsOrphaned
+            if (-not $WorkspaceId -and -not $WorkspaceName) {
+                $workspaces += Get-PowerBIWorkspace -Scope Organization
             }
-            elseif ($WorkspaceId) {
-                [array]$Workspace = Get-PowerBIWorkspace -Id $WorkspaceId -Orphaned:$IsOrphaned
-            }
-            elseif ($WorkspaceName) {
-                [array]$Workspace = Get-PowerBIWorkspace -Name $WorkspaceName -Orphaned:$IsOrphaned
+            else {
+                foreach ($WId in $WorkspaceId) {
+                    $guid = [guid]::Parse($WId)
+                    $workspaces += Get-PowerBIWorkspace -Id $guid
+                }
+
+                foreach ($WName in $WorkspaceName) {
+                    $workspaces += Get-PowerBIWorkspace -Name $WName
+                }
             }
         }
         catch {
             Stop-PSFFunction -Message "Something went wrong retrieving the workspace(s)`n$($_.Exception.Message)" -EnableException:$EnableException
         }
+
+        # Filter the workspaces if the IsOrphaned switch is enabled
+        if ($IsOrphaned) {
+            $workspaces = $workspaces | Where-Object { $_.IsOrphaned -eq $true }
+        }
     }
 
     process {
         # Create an array to store the workspaces
-        $workspaces = @()
+        $wsResult = @()
 
         # Loop through the workspaces and get the detailed information
-        foreach ($ws in $Workspace) {
+        foreach ($ws in $workspaces) {
             if ($Detailed) {
                 $wsObject = [PSCustomObject]@{
                     Id                    = $ws.Id
@@ -131,12 +141,12 @@
             }
 
             # Add the workspace to the array
-            $workspaces += $wsObject
+            $wsResult += $wsObject
         }
     }
 
     end {
-        return $workspaces
+        return $wsResult
     }
 
 }
