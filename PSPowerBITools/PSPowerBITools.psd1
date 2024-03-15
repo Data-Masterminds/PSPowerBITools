@@ -44,7 +44,8 @@
 	'Get-PSBIActivityEvent',
 	'Get-PSBIAppUser',
 	'Get-PSBIWorkspace',
-	'Get-PSBIWorkspaceUser'
+	'Get-PSBIWorkspaceUser',
+	'Set-PSBIWorkspace'
 
 	# Cmdlets to export from this module
 	CmdletsToExport   = ''
