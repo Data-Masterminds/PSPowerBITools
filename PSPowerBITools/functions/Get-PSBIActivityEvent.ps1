@@ -76,6 +76,10 @@
         if ($StartDate -gt $EndDate) {
             Stop-PSFFunction -Message "The start date is greater than the end date. Please provide a valid date range."
         }
+
+        if ((New-TimeSpan -Start $StartDate -End $EndDate).Days -gt 30) {
+            Stop-PSFFunction -Message "The date range is greater than 30 days. Please provide a date range of 30 days or less."
+        }
     }
 
     process {
@@ -114,6 +118,7 @@
             }
         }
 
+        # Filter the activity events
         if ($Operation) {
             $activityEvents = $activityEvents | Where-Object { $_.Operation -eq $Operation }
         }
