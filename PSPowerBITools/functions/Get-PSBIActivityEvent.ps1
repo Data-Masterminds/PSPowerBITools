@@ -95,7 +95,12 @@
                 [array]$activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
             }
             catch {
-                Stop-PSFFunction -Message "Something went wrong retrieving the activity events.`n$($_.Exception.Message)" -EnableException:$EnableException
+                if ($_.Exception.Response.StatusCode -eq 'Unauthorized') {
+                    Stop-PSFFunction -Message "You are not authorized to get the capacities. Please check your permissions." -Continue
+                }
+                else {
+                    Stop-PSFFunction -Message "An error occurred while getting the capacities. Please try again.`n$($_.Exception.Message)" -Continue
+                }
             }
 
         }
@@ -111,8 +116,6 @@
                 catch {
                     Stop-PSFFunction -Message $_.Exception.Message -EnableException:$EnableException
                 }
-
-
 
                 $date = $date.AddDays(1)
             }
