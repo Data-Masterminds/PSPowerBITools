@@ -105,17 +105,22 @@
 
         # Loop through the workspaces and get the detailed information
         foreach ($ws in $workspaces) {
+
+            $dashboards = Get-PowerBIDashboard -Scope Organization -WorkspaceId $ws.Id
+            $dataFlows = Get-PowerBIDataflow -Scope Organization -WorkspaceId $ws.Id
+            $dataSets = Get-PowerBIDataset -Scope Organization -WorkspaceId $ws.Id
+            $reports = Get-PowerBIReport -Scope Organization -WorkspaceId $ws.Id
+
             if ($Detailed) {
                 $wsObject = [PSCustomObject]@{
                     Id                    = $ws.Id
                     Name                  = $ws.Name
                     CapacityId            = $ws.CapacityId
                     Type                  = $ws.Type
-                    Dashboards            = $ws.Dashboards
-                    Dataflows             = $ws.Dataflows
-                    Datasets              = $ws.Datasets
-                    Reports               = $ws.Reports
-                    Workbooks             = $ws.Workbooks
+                    Dashboards            = $dashboards
+                    Dataflows             = $dataFlows
+                    Datasets              = $dataSets
+                    Reports               = $reports
                     Users                 = $ws.Users
                     IsReadOnly            = $ws.IsReadOnly
                     IsOnDedicatedCapacity = $ws.IsOnDedicatedCapacity
@@ -128,11 +133,10 @@
                     Name                  = $ws.Name
                     CapacityId            = $ws.CapacityId
                     Type                  = $ws.Type
-                    Dashboards            = $ws.Dashboards.Count
-                    Dataflows             = $ws.Dataflows.Count
-                    Datasets              = $ws.Datasets.Count
+                    Dashboards            = $dashboards.Count
+                    Dataflows             = $dataFlows.Count
+                    Datasets              = $dataSets.Count
                     Reports               = $ws.Reports.Count
-                    Workbooks             = $ws.Workbooks.Count
                     Users                 = $ws.Users.Identifier.Count
                     IsReadOnly            = $ws.IsReadOnly
                     IsOnDedicatedCapacity = $ws.IsOnDedicatedCapacity
