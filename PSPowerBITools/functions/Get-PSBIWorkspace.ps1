@@ -81,11 +81,11 @@
             else {
                 foreach ($WId in $WorkspaceId) {
                     $guid = [guid]::Parse($WId)
-                    $workspaces += Get-PowerBIWorkspace -Id $guid
+                    $workspaces += Get-PowerBIWorkspace -Id $guid -Scope Organization
                 }
 
                 foreach ($WName in $WorkspaceName) {
-                    $workspaces += Get-PowerBIWorkspace -Name $WName
+                    $workspaces += Get-PowerBIWorkspace -Name $WName -Scope Organization
                 }
             }
         }
