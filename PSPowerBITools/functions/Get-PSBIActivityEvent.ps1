@@ -121,6 +121,9 @@
             }
         }
 
+        # We don't want the activity events about retrieving the activity events
+        $activityEvents = $activityEvents | Where-Object { $_.Operation -ne 'ExportActivityEvents' }
+
         # Filter the activity events
         if ($Operation) {
             $activityEvents = $activityEvents | Where-Object { $_.Operation -eq $Operation }
