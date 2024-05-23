@@ -43,6 +43,7 @@
 	FunctionsToExport = 'Connect-PSBI',
 	'Get-PSBIActivityEvent',
 	'Get-PSBIAppUser',
+	'Get-PSBICapacity',
 	'Get-PSBIWorkspace',
 	'Get-PSBIWorkspaceUser',
 	'Set-PSBIWorkspace'

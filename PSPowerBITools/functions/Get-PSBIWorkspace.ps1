@@ -105,7 +105,6 @@
 
         # Loop through the workspaces and get the detailed information
         foreach ($ws in $workspaces) {
-
             $dashboards = Get-PowerBIDashboard -Scope Organization -WorkspaceId $ws.Id
             $dataFlows = Get-PowerBIDataflow -Scope Organization -WorkspaceId $ws.Id
             $dataSets = Get-PowerBIDataset -Scope Organization -WorkspaceId $ws.Id

@@ -80,6 +80,10 @@
         if ($StartDate -gt $EndDate) {
             Stop-PSFFunction -Message "The start date is greater than the end date. Please provide a valid date range."
         }
+
+        if ((New-TimeSpan -Start $StartDate -End $EndDate).Days -gt 30) {
+            Stop-PSFFunction -Message "The date range is greater than 30 days. Please provide a date range of 30 days or less."
+        }
     }
 
     process {
@@ -97,7 +101,12 @@
                 [array]$activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
             }
             catch {
-                Stop-PSFFunction -Message "Something went wrong retrieving the activity events.`n$($_.Exception.Message)" -EnableException:$EnableException
+                if ($_.Exception.Response.StatusCode -eq 'Unauthorized') {
+                    Stop-PSFFunction -Message "You are not authorized to get the capacities. Please check your permissions." -Continue
+                }
+                else {
+                    Stop-PSFFunction -Message "An error occurred while getting the capacities. Please try again.`n$($_.Exception.Message)" -Continue
+                }
             }
         }
         else {
@@ -120,6 +129,10 @@
             }
         }
 
+        # We don't want the activity events about retrieving the activity events
+        $activityEvents = $activityEvents | Where-Object { $_.Operation -ne 'ExportActivityEvents' }
+
+        # Filter the activity events
         if ($Operation) {
             $activityEvents = $activityEvents | Where-Object { $_.Operation -eq $Operation }
         }
