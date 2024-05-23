@@ -22,6 +22,9 @@
     .PARAMETER ClientIP
         The client ip of the activity event
 
+    .PARAMETER IncludeOwnAction
+        Incolude the events for retrieving the activity records
+
     .PARAMETER EnableException
         By default, when something goes wrong we try to catch it, interpret it and give you a friendly warning message.
         This avoids overwhelming you with "sea of red" exceptions, but is inconvenient because it basically disables advanced scripting.
@@ -61,6 +64,7 @@
         [string]$Operation,
         [string]$UserId,
         [string]$ClientIP,
+        [switch]$IncludeOwnAction,
         [switch]$EnableException
     )
 
@@ -91,6 +95,8 @@
             $StartDateString = $StartDate.ToString("yyyy-MM-ddT00:00:00Z")
             $EndDateString = $EndDate.ToString("yyyy-MM-ddT23:59:59Z")
 
+            #$url = "https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime='$($StartDateString)'&endDateTime='$($EndDateString)'"
+
             try {
                 [array]$activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
             }
@@ -102,7 +108,6 @@
                     Stop-PSFFunction -Message "An error occurred while getting the capacities. Please try again.`n$($_.Exception.Message)" -Continue
                 }
             }
-
         }
         else {
             $date = $StartDate
@@ -110,7 +115,10 @@
                 $StartDateString = $date.ToString("yyyy-MM-ddT00:00:00Z")
                 $EndDateString = $date.ToString("yyyy-MM-ddT23:59:59Z")
 
+                #$url = "https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime='$($StartDateString)'&endDateTime='$($EndDateString)'"
+
                 try {
+                    #$activityEvents += Invoke-RestMethod -Uri $url -Method Get | ConvertFrom-Json
                     $activityEvents += Get-PowerBIActivityEvent -StartDateTime $StartDateString -EndDateTime $EndDateString | ConvertFrom-Json
                 }
                 catch {
@@ -137,6 +145,9 @@
             $activityEvents = $activityEvents | Where-Object { $_.ClientIP -eq $ClientIP }
         }
 
+        if(-not $IncludeOwnAction){
+            $activityEvents = $activityEvents | Where-Object { $_.Operation -ne 'ExportActivityEvents'}
+        }
     }
 
     end {
