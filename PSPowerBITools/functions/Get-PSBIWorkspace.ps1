@@ -19,6 +19,9 @@
     .PARAMETER Detailed
         If this switch is enabled, the detailed information of the workspaces will be returned.
 
+    .PARAMETER Top
+        The number of items to return. Maximum is 5000 based on the documentation of the API.
+
     .PARAMETER EnableException
         By default, when something goes wrong we try to catch it, interpret it and give you a friendly warning message.
         This avoids overwhelming you with "sea of red" exceptions, but is inconvenient because it basically disables advanced scripting.
@@ -69,57 +72,58 @@
         [string[]]$WorkspaceName,
         [switch]$IsOrphaned,
         [switch]$Detailed,
+        [int]$Top = 5000,
         [switch]$EnableException
     )
 
     begin {
-        $workspaces = @()
-        try {
-            if (-not $WorkspaceId -and -not $WorkspaceName) {
-                $workspaces += Get-PowerBIWorkspace -Scope Organization
-            }
-            else {
-                foreach ($WId in $WorkspaceId) {
-                    $guid = [guid]::Parse($WId)
-                    $workspaces += Get-PowerBIWorkspace -Id $guid -Scope Organization
-                }
+        # $workspaces = @()
+        # try {
+        #     if (-not $WorkspaceId -and -not $WorkspaceName) {
+        #         $workspaces += Get-PowerBIWorkspace -Scope Organization
+        #     }
+        #     else {
+        #         foreach ($WId in $WorkspaceId) {
+        #             $guid = [guid]::Parse($WId)
+        #             $workspaces += Get-PowerBIWorkspace -Id $guid -Scope Organization
+        #         }
 
-                foreach ($WName in $WorkspaceName) {
-                    $workspaces += Get-PowerBIWorkspace -Name $WName -Scope Organization
-                }
-            }
-        }
-        catch {
-            Stop-PSFFunction -Message "Something went wrong retrieving the workspace(s)`n$($_.Exception.Message)" -EnableException:$EnableException
-        }
+        #         foreach ($WName in $WorkspaceName) {
+        #             $workspaces += Get-PowerBIWorkspace -Name $WName -Scope Organization
+        #         }
+        #     }
+        # }
+        # catch {
+        #     Stop-PSFFunction -Message "Something went wrong retrieving the workspace(s)`n$($_.Exception.Message)" -EnableException:$EnableException
+        # }
+
+        # Set the uri
 
         # Filter the workspaces if the IsOrphaned switch is enabled
         if ($IsOrphaned) {
-            $workspaces = $workspaces | Where-Object { $_.IsOrphaned -eq $true }
+            $uri = "https://api.powerbi.com/v1.0/myorg/admin/groups?`$expand=dashboards,datasets,dataflows,reports,users&`$top=$($Top)&&$filter=(not users/any()) or (not users/any(u: u/groupUserAccessRight eq Microsoft.PowerBI.ServiceContracts.Api.GroupUserAccessRight'Admin'))"
+            #$workspaces = $workspaces | Where-Object { $_.IsOrphaned -eq $true }
         }
+        else {
+            $uri = "https://api.powerbi.com/v1.0/myorg/admin/groups?`$expand=dashboards,datasets,dataflows,reports,users&`$top=$($Top)"
+        }
+
+        $workspaces = (Invoke-PowerBIRestMethod -Url $uri -Method Get | ConvertFrom-Json).value
     }
 
     process {
-        # Create an array to store the workspaces
-        $wsResult = @()
-
         # Loop through the workspaces and get the detailed information
         foreach ($ws in $workspaces) {
-            $dashboards = Get-PowerBIDashboard -Scope Organization -WorkspaceId $ws.Id
-            $dataFlows = Get-PowerBIDataflow -Scope Organization -WorkspaceId $ws.Id
-            $dataSets = Get-PowerBIDataset -Scope Organization -WorkspaceId $ws.Id
-            $reports = Get-PowerBIReport -Scope Organization -WorkspaceId $ws.Id
-
             if ($Detailed) {
                 $wsObject = [PSCustomObject]@{
                     Id                    = $ws.Id
                     Name                  = $ws.Name
                     CapacityId            = $ws.CapacityId
                     Type                  = $ws.Type
-                    Dashboards            = $dashboards
-                    Dataflows             = $dataFlows
-                    Datasets              = $dataSets
-                    Reports               = $reports
+                    Dashboards            = $ws.Dashboards
+                    Dataflows             = $ws.Dataflows
+                    Datasets              = $ws.Datasets
+                    Reports               = $ws.Reports
                     Users                 = $ws.Users
                     IsReadOnly            = $ws.IsReadOnly
                     IsOnDedicatedCapacity = $ws.IsOnDedicatedCapacity
@@ -132,9 +136,9 @@
                     Name                  = $ws.Name
                     CapacityId            = $ws.CapacityId
                     Type                  = $ws.Type
-                    Dashboards            = $dashboards.Count
-                    Dataflows             = $dataFlows.Count
-                    Datasets              = $dataSets.Count
+                    Dashboards            = $ws.Dashboards.Count
+                    Dataflows             = $ws.Dataflows.Count
+                    Datasets              = $ws.Datasets.Count
                     Reports               = $ws.Reports.Count
                     Users                 = $ws.Users.Identifier.Count
                     IsReadOnly            = $ws.IsReadOnly
