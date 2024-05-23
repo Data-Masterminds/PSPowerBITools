@@ -112,6 +112,9 @@
     }
 
     process {
+
+        $wsResult = @()
+
         # Loop through the workspaces and get the detailed information
         foreach ($ws in $workspaces) {
             if ($Detailed) {
